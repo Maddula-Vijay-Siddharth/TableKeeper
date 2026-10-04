@@ -1,50 +1,60 @@
-Tablekeeper
-===========
+# TableKeeper
 
-Tablekeeper is a Python/FastAPI restaurant reservation service backed by PostgreSQL.
-The booking invariant is enforced in the database: `reservation_tables` has a
-PostgreSQL GiST exclusion constraint that rejects overlapping active occupied
-ranges for the same table. Availability responses are advisory only.
+TableKeeper is an AI-built restaurant reservation system developed for the
+WeAreDevelopers × BAND AI Dark Factory Hackathon.
 
-## Requirements
+The system allows customers to discover restaurants, check table
+availability, create reservations, view reservations, and cancel bookings.
+Restaurant staff can manage tables and service availability.
 
-- Python 3.12
-- uv
-- PostgreSQL 15+ with permission to create the `btree_gist` extension
+## Core Goal
 
-## Configuration
+The most important requirement is:
 
-Copy `.env.example` to `.env` or set environment variables directly.
+> A restaurant table must never be double-booked for overlapping
+> reservation times, even when multiple requests arrive concurrently.
+
+TableKeeper uses PostgreSQL database-level constraints and transactions
+to enforce this invariant.
+
+## Features
+
+- Restaurant discovery
+- Restaurant and table availability
+- Reservation creation
+- Reservation lookup
+- Reservation cancellation
+- Restaurant table management
+- Service-period management
+- Timezone-aware reservations
+- DST validation
+- Idempotent reservation requests
+- Transactional reservation handling
+- PostgreSQL concurrency protection
+- Stable API error responses
+- Automated tests
+
+## Architecture
+
+The project is developed using an AI software factory coordinated through
+BAND.
 
 ```text
-TABLEKEEPER_DATABASE_URL=postgresql+psycopg://tablekeeper:tablekeeper@localhost:5432/tablekeeper
-TABLEKEEPER_IDEMPOTENCY_TTL_HOURS=48
-```
-
-For integration tests, set:
-
-```text
-TABLEKEEPER_TEST_DATABASE_URL=postgresql+psycopg://tablekeeper:tablekeeper@localhost:5432/tablekeeper_test
-```
-
-## Clean Setup
-
-```powershell
-uv sync --dev
-uv run tablekeeper-migrate
-uv run tablekeeper-api
-```
-
-The API listens on `http://127.0.0.1:8000` by default. Protected routes use
-`X-User-Id: <uuid>` for the current implementation's lightweight identity.
-
-## Validation
-
-```powershell
-uv run pytest -q
-python -m compileall src tests
-```
-
-PostgreSQL-backed tests are skipped unless `TABLEKEEPER_TEST_DATABASE_URL` is
-set. Those tests exercise the exclusion constraint, including exact adjacency
-and rejected overlaps.
+Requirements
+     |
+     v
+Architecture Agent
+     |
+     v
+Implementation Agent
+     |
+     v
+Verification / Test Agent
+     |
+     +------ FAIL ------> Implementation Agent
+     |
+     v
+Review Agent
+     |
+     v
+Final Acceptance
