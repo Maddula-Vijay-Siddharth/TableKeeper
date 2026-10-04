@@ -22,7 +22,7 @@ from .schemas import (
     TableResponse,
     TableUpdate,
 )
-from .services import availability, management, reservations
+from .services import auth, availability, management, reservations
 
 
 def get_db() -> Iterator[Session]:
@@ -33,13 +33,10 @@ def get_db() -> Iterator[Session]:
         db.close()
 
 
-def current_user_id(x_user_id: Annotated[str | None, Header()] = None) -> uuid.UUID:
-    if not x_user_id:
-        raise AppError("unauthenticated", "Missing X-User-Id header", status_code=401)
-    try:
-        return uuid.UUID(x_user_id)
-    except ValueError as exc:
-        raise AppError("invalid_user", "X-User-Id must be a UUID", status_code=401) from exc
+def current_user_id(authorization: Annotated[str | None, Header()] = None) -> uuid.UUID:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise AppError("unauthenticated", "Missing or invalid bearer token", status_code=401)
+    return auth.verify_access_token(authorization[7:])
 
 
 def create_app() -> FastAPI:

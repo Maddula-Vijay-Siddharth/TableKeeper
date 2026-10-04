@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://tablekeeper:tablekeeper@localhost:5432/tablekeeper"
     idempotency_ttl_hours: int = 48
+    auth_token_secret: str = ""
 
     model_config = SettingsConfigDict(env_prefix="TABLEKEEPER_", env_file=".env", extra="ignore")
 
